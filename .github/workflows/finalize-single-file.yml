@@ -1,5 +1,6 @@
 name: Finalize single-file J플래너
 
+# Re-triggered after all six verified payload chunks were present.
 on:
   push:
     branches:
