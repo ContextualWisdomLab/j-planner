@@ -1,0 +1,35 @@
+name: Vendor Leaflet 1.9.4
+
+on:
+  push:
+    branches:
+      - feat/single-file-travel-planner
+    paths:
+      - .github/workflows/vendor-leaflet.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download pinned Leaflet package
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm pack leaflet@1.9.4 --ignore-scripts
+          mkdir -p vendor
+          tar -xzf leaflet-1.9.4.tgz
+          cp package/dist/leaflet.js vendor/leaflet.js
+          cp package/dist/leaflet.css vendor/leaflet.css
+          node -e "const fs=require('fs');const s=fs.readFileSync('vendor/leaflet.js','utf8');if(!s.includes('t.version=\"1.9.4\"')&&!s.includes('version: \"1.9.4\"'))process.exit(1)"
+      - name: Upload vendored sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: leaflet-1.9.4-vendor
+          path: vendor/
+          if-no-files-found: error
+          retention-days: 1
