@@ -1,0 +1,44 @@
+name: Finalize single-file J플래너
+
+on:
+  push:
+    branches:
+      - feat/single-file-travel-planner
+    paths:
+      - .github/workflows/finalize-single-file.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/single-file-travel-planner
+          fetch-depth: 0
+      - name: Reconstruct exact verified index.html
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .final/01 .final/02 .final/03 .final/04 .final/05 .final/06 | base64 --decode | gzip --decompress > index.html
+          echo 'aab2860efd04a52ce143b9ffb72a09cd27dbc433bba64bd65a878642bc7aa00b  index.html' | sha256sum --check --strict
+          test "$(find . -maxdepth 1 -type f -name '*.html' -printf '%f\n')" = 'index.html'
+          ! grep -Eq '<script[^>]+src=|<link[^>]+rel=["'"']stylesheet["'"']' index.html
+      - name: Remove staging artifacts and commit final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .final
+          rm -f .github/workflows/finalize-single-file.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat: finalize J플래너 single-file app'
+          git push origin HEAD:feat/single-file-travel-planner
