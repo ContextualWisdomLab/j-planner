@@ -1,12 +1,14 @@
 name: Finalize single-file J플래너
 
-# Re-triggered after all six verified payload chunks were present.
 on:
   push:
     branches:
       - feat/single-file-travel-planner
     paths:
       - .github/workflows/finalize-single-file.yml
+  pull_request:
+    branches:
+      - gh-pages
   workflow_dispatch:
 
 permissions:
@@ -14,6 +16,7 @@ permissions:
 
 jobs:
   finalize:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
