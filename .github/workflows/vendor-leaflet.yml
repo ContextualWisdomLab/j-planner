@@ -6,6 +6,9 @@ on:
       - feat/single-file-travel-planner
     paths:
       - .github/workflows/vendor-leaflet.yml
+  pull_request:
+    branches:
+      - gh-pages
   workflow_dispatch:
 
 permissions:
