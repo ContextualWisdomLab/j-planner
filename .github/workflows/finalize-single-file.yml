@@ -31,11 +31,12 @@ jobs:
           cat .final/01 .final/02 .final/03 .final/04 .final/05 .final/06 .final/07 .final/08 | base64 --decode | gzip --decompress > index.html
           echo '06cabfb1301a5f44d7d009fee338a856660ebd788b45ee1ed182d4a4cb45af25  index.html' | sha256sum --check --strict
           test "$(find . -maxdepth 1 -type f -name '*.html' -printf '%f\n')" = 'index.html'
-          ! grep -Eq '<script[^>]+src=|<link[^>]+rel=["'"']stylesheet["'"']' index.html
-          grep -q 'Leaflet 1.9.4' index.html
-          grep -q 'L.map(' index.html
-          grep -q 'router.project-osrm.org' index.html
-          grep -q 'nominatim.openstreetmap.org' index.html
+          ! grep -Fq '<script src=' index.html
+          ! grep -Fq 'rel="stylesheet"' index.html
+          grep -Fq 'Leaflet 1.9.4' index.html
+          grep -Fq 'L.map(' index.html
+          grep -Fq 'router.project-osrm.org' index.html
+          grep -Fq 'nominatim.openstreetmap.org' index.html
       - name: Remove staging artifacts and commit final tree
         shell: bash
         run: |
