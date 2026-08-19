@@ -17,7 +17,7 @@ permissions:
 jobs:
   finalize:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-22.04
+    runs-on: windows-2022
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
