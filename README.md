@@ -8,9 +8,11 @@ J플래너는 계정이나 별도 서버 없이 바로 사용할 수 있는 정�
 
 ## 바로 사용하기
 
-현재 배포된 앱을 GitHub Pages에서 엽니다:
+저장소에 구성된 GitHub Pages 주소는 다음과 같습니다:
 
 https://contextualwisdomlab.github.io/j-planner/
+
+저장소 설정과 소스만으로 현재 HTTP 제공 상태를 보증하지는 않습니다. 접속할 수 없으면 [제품·기술 Gap baseline](docs/product-technical-gap-baseline.md)의 publication 상태를 확인하세요.
 
 설치나 로그인은 필요하지 않습니다. 새 여행을 만들고 날짜별 일정을 추가한 뒤 장소 좌표를 넣으면 지도에서 동선을 확인할 수 있습니다. 필요한 예약 자료는 일정과 함께 보관하고, 여행 일정은 JSON 백업이나 ICS 캘린더 내보내기로 별도 보존할 수 있습니다.
 
@@ -37,7 +39,7 @@ J플래너의 여행 데이터는 브라우저 저장소를 중심으로 동작�
 
 J플래너는 개인 여행 계획을 위한 브라우저 애플리케이션입니다. 항공사·숙박업체·결제사·지도 공급자의 예약 또는 상거래 시스템을 대체하지 않으며, 외부 예약의 성공 여부나 최신 운영 정보를 권위 있게 보증하지 않습니다.
 
-현재 UI와 실행 동작의 기준은 보호된 기본 브랜치의 `index.html`과 실제 GitHub Pages 배포입니다. README는 그 동작을 설명하지만 구현되지 않은 서버 기능이나 계정 동기화를 별도 제품 기능으로 주장하지 않습니다.
+현재 UI와 실행 동작의 소스 기준은 보호된 기본 브랜치의 `index.html`입니다. 실제 publication 상태는 별도 운영 증거로 검증해야 합니다. README는 구현되지 않은 서버 기능이나 계정 동기화를 제품 기능으로 주장하지 않습니다.
 
 ## 구조
 
@@ -51,14 +53,15 @@ Browser
 
 저장소는 의도적으로 작습니다.
 
-- `index.html` — 배포되는 단일 파일 J플래너 웹 앱. 애플리케이션 CSS/JavaScript와 Leaflet 1.9.4가 인라인되어 있습니다.
+- `index.html` — 배포 소스인 단일 파일 J플래너 웹 앱. 애플리케이션 CSS/JavaScript와 Leaflet 1.9.4가 인라인되어 있습니다.
 - `README.md` — 사용자와 유지관리자를 위한 제품 안내입니다.
+- [`docs/product-technical-gap-baseline.md`](docs/product-technical-gap-baseline.md) — 보호 소스, publication, release, 설계·운영 Gap의 근거와 상태입니다.
 - `LICENSE` — J플래너의 원저작물에 적용되는 Apache License 2.0입니다.
 - `THIRD_PARTY_NOTICES.md` — 인라인 반입된 Leaflet 등 제3자 코드의 별도 라이선스 고지입니다.
 
 ## 유지관리와 검증
 
-이 저장소는 정적 Pages 앱이므로 README 변경만으로 제품 기능이 바뀌지는 않습니다. `index.html`을 변경할 때는 실제 브라우저에서 여행 생성, 일정 편집, 지도 표시, 백업/복원, ICS 내보내기와 저장소 유지 동작을 함께 검증해야 합니다. 사용자에게 보이는 기능 설명은 배포된 동작보다 앞서가면 안 됩니다.
+이 저장소는 정적 Pages 앱이므로 README 변경만으로 제품 기능이 바뀌지는 않습니다. `index.html`을 변경할 때는 실제 브라우저에서 여행 생성, 일정 편집, 지도 표시, 백업/복원, ICS 내보내기와 저장소 유지 동작을 함께 검증해야 합니다. 사용자에게 보이는 기능 설명은 검증된 동작보다 앞서가면 안 됩니다.
 
 ## License
 
