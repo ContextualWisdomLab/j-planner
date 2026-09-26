@@ -9,7 +9,7 @@ test("documents the Nominatim geocoding boundary", async () => {
   ]);
 
   assert.match(application, /nominatim\.openstreetmap\.org\/search/);
-  assert.match(application, /geocode\(value\.place \|\| value\.name\)/);
+  assert.match(application, /geocode\(value\.place\|\|value\.name\)/);
   assert.match(
     baseline,
     /external Nominatim geocoding \(place\/name query\), OpenStreetMap tiles and OSRM routes/,
