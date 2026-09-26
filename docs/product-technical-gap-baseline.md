@@ -1,7 +1,7 @@
 # J플래너 product and technical gap baseline
 
 Status: **Proposed**  
-Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, repository metadata and [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2), observed 2026-09-20.
+Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, repository metadata and [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2), observed 2026-09-26.
 
 This baseline distinguishes protected-source evidence from proposed PR content and live publication. An open PR is not a release or deployment.
 
@@ -19,10 +19,10 @@ Traveller
        -> browser localStorage (trip data)
        -> JSON / ICS files (user-controlled export)
        -> embedded Leaflet 1.9.4 (map rendering)
-       -> external OpenStreetMap tiles and OSRM routes (network ACL)
+       -> external Nominatim geocoding (place/name query), OpenStreetMap tiles and OSRM routes (network ACL)
 ```
 
-J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. OpenStreetMap tile and OSRM network services remain external systems governed by their own availability and terms; they are not J플래너 release artifacts.
+J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. Nominatim geocoding, OpenStreetMap tile, and OSRM route services remain external systems governed by their own availability and terms. When coordinates are missing, Nominatim receives the item's `place` or `name` value as the geocoding query. These services are not J플래너 release artifacts.
 
 ## Product and technical evidence
 
