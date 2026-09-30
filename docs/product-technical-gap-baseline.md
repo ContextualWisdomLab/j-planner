@@ -20,9 +20,10 @@ Traveller
        -> JSON / ICS files (user-controlled export)
        -> embedded Leaflet 1.9.4 (map rendering)
        -> external Nominatim geocoding (place/name query), OpenStreetMap tiles and OSRM routes (network ACL)
+       -> external Google Maps search/directions (place/name query on user action)
 ```
 
-J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. Nominatim geocoding, OpenStreetMap tile, and OSRM route services remain external systems governed by their own availability and terms. When coordinates are missing, Nominatim receives the item's `place` or `name` value as the geocoding query. These services are not J플래너 release artifacts.
+J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. Nominatim geocoding, OpenStreetMap tile, OSRM route, and Google Maps navigation services remain external systems governed by their own availability and terms. When coordinates are missing, Nominatim receives the item's `place` or `name` value as the geocoding query. When no custom map URL exists and the user opens map search or directions, Google Maps receives the item's `place` or `name` value in the destination or search query. These services are not J플래너 release artifacts.
 
 ## Product and technical evidence
 
@@ -44,6 +45,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | --- | --- | --- | --- |
 | JPL-DOC-001 | Protected source has no repository landing, root license, or third-party notice. | Merge PR #2 only after exact-head Checks and qualifying independent review; confirm README, `LICENSE`, and `THIRD_PARTY_NOTICES.md` blobs on protected `gh-pages`. | Proposed |
 | JPL-DOC-002 | The Nominatim documentation contract did not bind the missing-coordinate and `place`/`name` fallback guard to the `geocode` call. | Review-repair commit `7b3c64e84d2cc5f1fcd3f11fce06ba6b02f135b2` makes a `place`-only guard fail while the unchanged application passes; require exact-head hosted evidence before merge. | Proposed |
+| JPL-DOC-003 | The Google Maps fallback navigation present in the UI was absent from the external-service and privacy boundary. | Document the user-triggered `place`/`name` query flow in README and the Context Map, and bind both Google Maps URL paths to the documentation contract. | Proposed |
 | JPL-PUB-001 | Pages source/settings do not prove current HTTP delivery. | Verify the configured public URL after ordinary merge and record the observed revision and timestamp before claiming publication. | Open |
 | JPL-REL-001 | No immutable GitHub Release binds source, license, and provenance. | Produce a versioned release only after release acceptance confirms source revision, SBOM/provenance, and third-party notices. | Open |
 | JPL-SEC-001 | Historical dependency review could not query the dependency graph (HTTP 403). | Repair the central workflow owner; retain fail-closed behavior for dependency-changing PRs and verify a fresh exact-head run when applicable. | Open upstream |
