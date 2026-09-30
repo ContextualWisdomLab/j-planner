@@ -7,9 +7,13 @@ test("documents the Nominatim geocoding boundary", async () => {
     readFile("docs/product-technical-gap-baseline.md", "utf8"),
     readFile("index.html", "utf8"),
   ]);
+  const compactApplication = application.replace(/\s+/g, "");
 
   assert.match(application, /nominatim\.openstreetmap\.org\/search/);
-  assert.match(application, /geocode\(value\.place\|\|value\.name\)/);
+  assert.match(
+    compactApplication,
+    /if\(\(value\.lat===null\|\|value\.lng===null\)&&\(value\.place\|\|value\.name\)\)\{constfound=awaitgeocode\(value\.place\|\|value\.name\)/,
+  );
   assert.match(
     baseline,
     /external Nominatim geocoding \(place\/name query\), OpenStreetMap tiles and OSRM routes/,
