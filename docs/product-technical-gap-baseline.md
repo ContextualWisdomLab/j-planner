@@ -1,7 +1,7 @@
 # J플래너 product and technical gap baseline
 
-Status: **Proposed**  
-Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, repository metadata and [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2), observed 2026-09-26.
+Status: **Proposed**
+Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, repository metadata and [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2), observed 2026-10-01.
 
 This baseline distinguishes protected-source evidence from proposed PR content and live publication. An open PR is not a release or deployment.
 
@@ -43,6 +43,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | ID | Gap | Action and acceptance evidence | Status |
 | --- | --- | --- | --- |
 | JPL-DOC-001 | Protected source has no repository landing, root license, or third-party notice. | Merge PR #2 only after exact-head Checks and qualifying independent review; confirm README, `LICENSE`, and `THIRD_PARTY_NOTICES.md` blobs on protected `gh-pages`. | Proposed |
+| JPL-DOC-002 | The Nominatim documentation contract did not bind the missing-coordinate and `place`/`name` fallback guard to the `geocode` call. | Review-repair commit `7b3c64e84d2cc5f1fcd3f11fce06ba6b02f135b2` makes a `place`-only guard fail while the unchanged application passes; require exact-head hosted evidence before merge. | Proposed |
 | JPL-PUB-001 | Pages source/settings do not prove current HTTP delivery. | Verify the configured public URL after ordinary merge and record the observed revision and timestamp before claiming publication. | Open |
 | JPL-REL-001 | No immutable GitHub Release binds source, license, and provenance. | Produce a versioned release only after release acceptance confirms source revision, SBOM/provenance, and third-party notices. | Open |
 | JPL-SEC-001 | Historical dependency review could not query the dependency graph (HTTP 403). | Repair the central workflow owner; retain fail-closed behavior for dependency-changing PRs and verify a fresh exact-head run when applicable. | Open upstream |
