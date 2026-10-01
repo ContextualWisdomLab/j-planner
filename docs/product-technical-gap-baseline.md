@@ -1,7 +1,7 @@
 # J플래너 product and technical gap baseline
 
 Status: **Proposed**
-Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, repository metadata and [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2), observed 2026-10-01.
+Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2) foundation head `f9f9fa2afc3d15f4cb24112fccefe0d150ecdb87`, repository metadata, and this stacked writer branch, observed 2026-10-01.
 
 This baseline distinguishes protected-source evidence from proposed PR content and live publication. An open PR is not a release or deployment.
 
@@ -19,11 +19,11 @@ Traveller
        -> browser localStorage (trip data)
        -> JSON / ICS files (user-controlled export)
        -> embedded Leaflet 1.9.4 (map rendering)
-       -> external Nominatim geocoding (place/name query), OpenStreetMap tiles and OSRM routes (network ACL)
+       -> external Nominatim geocoding (explicit place/name lookup), OpenStreetMap tiles and OSRM routes (network ACL)
        -> external Google Maps search/directions (place/name query on user action)
 ```
 
-J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. Nominatim geocoding, OpenStreetMap tile, OSRM route, and Google Maps navigation services remain external systems governed by their own availability and terms. When coordinates are missing, Nominatim receives the item's `place` or `name` value as the geocoding query. When no custom map URL exists and the user opens map search or directions, Google Maps receives the item's `place` or `name` value in the destination or search query. These services are not J플래너 release artifacts.
+J플래너 owns travel-plan interaction and browser-local persistence. Leaflet remains a third-party library under its own BSD 2-Clause terms. Nominatim geocoding, OpenStreetMap tile, OSRM route, and Google Maps navigation services remain external systems governed by their own availability and terms. Saving an item never invokes geocoding. Only the disclosed ‘위치 조회’ action sends the current `place` value, or `name` when place is empty, to Nominatim and copies a successful coordinate result into the local form. When no custom map URL exists and the user opens map search or directions, Google Maps receives the item's `place` or `name` value in the destination or search query. These services are not J플래너 release artifacts.
 
 ## Product and technical evidence
 
@@ -34,7 +34,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | TRD | No dedicated TRD is present. The single-file runtime and external network calls are visible in `index.html`. | Gap |
 | UML | No maintained UML artifact is present. The Context Map above is the bounded architecture view for this documentation change. | Gap |
 | ERD | No server database exists in the documented product boundary; browser-local JSON state is not represented as a relational ERD. | Not applicable until a database is introduced |
-| ADR | No dedicated ADR is present for local-only persistence, Pages publication, or external map-service boundaries. | Gap |
+| ADR | ADR-0001 proposes the explicit geocoding disclosure and consent boundary on this stacked writer branch. It is not Accepted before merge. | Proposed |
 | Release | Repository metadata reports zero GitHub Releases. Source or version strings must not be treated as an immutable release. | Open |
 | Pages | Repository settings and root source support Pages, but live HTTP publication was not independently verified in this evidence snapshot. | Unverified |
 | License | PR #2 proposes Apache-2.0 for J플래너 original source and a separate Leaflet BSD 2-Clause notice. External services are excluded from that grant. | Proposed |
@@ -44,12 +44,14 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | ID | Gap | Action and acceptance evidence | Status |
 | --- | --- | --- | --- |
 | JPL-DOC-001 | Protected source has no repository landing, root license, or third-party notice. | Merge PR #2 only after exact-head Checks and qualifying independent review; confirm README, `LICENSE`, and `THIRD_PARTY_NOTICES.md` blobs on protected `gh-pages`. | Proposed |
-| JPL-DOC-002 | The Nominatim documentation contract did not bind the missing-coordinate and `place`/`name` fallback guard to the `geocode` call. | Review-repair commit `7b3c64e84d2cc5f1fcd3f11fce06ba6b02f135b2` makes a `place`-only guard fail while the unchanged application passes; require exact-head hosted evidence before merge. | Proposed |
+| JPL-DOC-002 | PR #2's Nominatim contract bound documentation to implicit save-time geocoding, which this privacy repair intentionally removes. | Replace the obsolete guard with contracts proving save is local-only and only the disclosed ‘위치 조회’ handler calls `geocode`; keep PR #2 alive as the foundation. | Proposed repair |
 | JPL-DOC-003 | The Google Maps fallback navigation present in the UI was absent from the external-service and privacy boundary. | Document the user-triggered `place`/`name` query flow in README and the Context Map, and bind both Google Maps URL paths to the documentation contract. | Proposed |
+| JPL-PRI-001 | Saving an item with missing coordinates automatically disclosed its place or name to Nominatim without an explicit user action. | `tests/geocoding-consent-contract.test.mjs` must prove local-only save, explicit disclosure, one-action lookup, duplicate-request prevention, and recoverable normal/not-found/offline/error states; ADR-0001 remains Proposed until ordinary merge. | Proposed repair |
+| JPL-EXT-001 | The public Nominatim endpoint is a limited external dependency and is not a supported commercial geocoding SLA. | Before a supported commercial release, place geocoding behind a configurable product-owned port, document provider switching/caching/attribution, and verify the selected provider contract without copying an upstream implementation. | Open |
 | JPL-PUB-001 | Pages source/settings do not prove current HTTP delivery. | Verify the configured public URL after ordinary merge and record the observed revision and timestamp before claiming publication. | Open |
 | JPL-REL-001 | No immutable GitHub Release binds source, license, and provenance. | Produce a versioned release only after release acceptance confirms source revision, SBOM/provenance, and third-party notices. | Open |
 | JPL-SEC-001 | Historical dependency review could not query the dependency graph (HTTP 403). | Repair the central workflow owner; retain fail-closed behavior for dependency-changing PRs and verify a fresh exact-head run when applicable. | Open upstream |
-| JPL-DES-001 | PRD, TRD, and ADR evidence are absent. | Add bounded decisions only when product or operational behavior changes; do not manufacture documents for the current static implementation. | Open |
+| JPL-DES-001 | PRD and TRD evidence remain absent; the first bounded ADR is proposed for the geocoding privacy boundary. | Accept ADR-0001 only with the behavior change, then add PRD/TRD evidence when a wider product or operational decision requires it. | Open |
 | JPL-OPS-001 | No product-owned support or incident route is documented. | Define a public support and vulnerability-reporting route before a supported release claim. | Open |
 
 ## Merge and release gate

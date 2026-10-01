@@ -3,24 +3,25 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("documents the Nominatim geocoding boundary", async () => {
-  const [baseline, application] = await Promise.all([
+  const [readme, baseline, application] = await Promise.all([
+    readFile("README.md", "utf8"),
     readFile("docs/product-technical-gap-baseline.md", "utf8"),
     readFile("index.html", "utf8"),
   ]);
-  const compactApplication = application.replace(/\s+/g, "");
 
   assert.match(application, /nominatim\.openstreetmap\.org\/search/);
   assert.match(
-    compactApplication,
-    /if\(\(value\.lat===null\|\|value\.lng===null\)&&\(value\.place\|\|value\.name\)\)\{constfound=awaitgeocode\(value\.place\|\|value\.name\)/,
+    application,
+    /OpenStreetMap Nominatim[\s\S]+id="itemGeocodeBtn"[^>]+type="button">위치 조회/,
+  );
+  assert.match(readme, /일정 저장 자체는 외부 지오코딩 요청을 만들지 않습니다/);
+  assert.match(
+    baseline,
+    /external Nominatim geocoding \(explicit place\/name lookup\), OpenStreetMap tiles and OSRM routes/,
   );
   assert.match(
     baseline,
-    /external Nominatim geocoding \(place\/name query\), OpenStreetMap tiles and OSRM routes/,
-  );
-  assert.match(
-    baseline,
-    /When coordinates are missing, Nominatim receives the item's `place` or `name` value as the geocoding query\./,
+    /Saving an item never invokes geocoding\./,
   );
 });
 
