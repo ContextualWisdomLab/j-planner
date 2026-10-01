@@ -1,4 +1,4 @@
-# ADR-0001: Require an explicit action before geocoding
+# ADR-0001: Disable public geocoding until a governed provider port exists
 
 - Status: Proposed
 - Date: 2026-10-01
@@ -9,47 +9,49 @@
 
 The item-save handler automatically sent `place`, or `name` as a fallback, to the public Nominatim endpoint whenever either coordinate was missing. A user choosing browser-local persistence therefore caused an external disclosure without a separate action or in-context notice. The save operation also waited on that external service and silently treated failures as missing coordinates.
 
+A first repair separated lookup from save, but a client-side delay could not enforce the public service's site-wide request limit across users or provide an operator-controlled service switch. Keeping a hard-coded public endpoint would therefore misrepresent an unsupported integration as a reliable product capability.
+
 ## Constraints
 
 - J플래너 is a static, browser-local application without a product backend or account.
 - Place and itinerary names can contain personal or confidential material.
 - Coordinates remain optional; saving an itinerary must not require a network service.
-- The public Nominatim service permits moderate end-user-triggered search, limits traffic to at most one request per second, requires application identification and attribution, and can change or withdraw access.
+- The public Nominatim policy sets an absolute maximum of one request per second for the website or application, requires identification and attribution, and requires apps to be able to switch services without a software update.
 - This open writer branch is Proposed evidence, not an Accepted decision or release.
 
 ## Decision
 
-1. Item save is local-only and never calls geocoding.
-2. The form exposes a separate `위치 조회` button beside a visible notice naming OpenStreetMap Nominatim, the transmitted value, and the no-transmission default.
-3. One button activation performs at most one lookup. The button is disabled and marked busy while the request is active, and client requests are spaced by at least one second.
-4. A successful result fills the latitude and longitude fields; the result is persisted only if the user subsequently saves the item.
-5. Empty input, offline state, no match, and service/network failure produce recoverable inline status through a polite live region. No error falls through to an implicit save-time request.
-6. Nominatim remains an external ACL, not J플래너 domain truth. A supported commercial release must replace the hard-coded public endpoint with a configurable provider port and an appropriate provider contract.
+1. Item save and edit are local-only and never call a geocoder.
+2. Public Nominatim lookup code, endpoint, controls, and request state are removed from the application.
+3. Travellers can enter optional latitude and longitude values directly; existing coordinates remain editable.
+4. Geocoding may return only behind a configurable product-owned provider port with site-wide traffic governance, caching where permitted, attribution, failure isolation, audit evidence, and an operator-controlled provider switch.
+5. Any future provider remains an external ACL, not J플래너 domain truth, and requires test-first contract evidence on its canonical writer branch.
 
 ## Alternatives
 
 - **Keep automatic save-time geocoding:** rejected because local save and external disclosure remain coupled, failures are hidden, and the call is not directly user-triggered.
-- **Remove geocoding entirely:** rejected for now because optional coordinate discovery materially supports the map experience and can be bounded safely.
-- **Build a product geocoding backend now:** deferred because no released shared owner or demonstrated traffic requires that operational surface yet. The current public endpoint is not accepted as a commercial SLA.
+- **Expose an explicit browser-side lookup with a one-second delay:** rejected because per-tab state cannot enforce a site-wide limit or coordinate concurrent and reopened forms, and a hard-coded endpoint cannot be switched operationally.
+- **Build a product geocoding backend now:** deferred because no released shared owner or demonstrated demand justifies that operational surface yet.
+- **Disable public geocoding and preserve manual coordinates:** selected as the smallest safe boundary for the current static product.
 
 ## User, operations, and failure scenes
 
-- A traveller enters a private meeting name and presses Save: the itinerary is stored locally and no Nominatim request occurs.
-- A traveller enters a public landmark and presses `위치 조회`: the disclosed query is sent once, coordinates fill the form, and the traveller decides whether to save them.
-- The device is offline: the form keeps all input and tells the traveller to reconnect and retry or enter coordinates directly.
-- Nominatim returns no result or an error: the form distinguishes no match from service failure and preserves a retry path.
-- Usage outgrows the public endpoint: operations can only claim commercial support after a provider port, switch/caching plan, attribution, and immutable release evidence exist.
+- A traveller enters a private meeting name and presses Save: the itinerary is stored locally and no geocoding request occurs.
+- A traveller already knows a location's coordinates: the values can be entered and saved without an external lookup.
+- A traveller does not know coordinates: the rest of the itinerary remains usable; no unsupported network fallback runs silently.
+- A future provider becomes unavailable or changes terms: operations can switch or disable it through the provider port without shipping application code.
+- Concurrent users request coordinates after a governed integration exists: the shared traffic control, rather than independent browser timers, applies provider limits.
 
 ## Consequences and risks
 
-The privacy boundary becomes visible and testable, and save latency no longer depends on geocoding. The single-file runtime gains a small stateful request path. Users can still choose to disclose sensitive text after reading the warning, and GitHub Pages origin identification does not create a provider SLA. Public-endpoint dependence therefore remains an open commercialization Gap.
+The privacy and reliability boundary becomes small and testable, and save latency no longer depends on geocoding. Automatic coordinate discovery is unavailable until the operational contract exists, so some travellers must enter coordinates manually. OpenStreetMap tiles, OSRM routing, and user-triggered Google Maps navigation remain separate external boundaries documented in the product baseline.
 
 ## Verification and follow-up
 
 - Run `node --test tests/*.test.mjs` against the exact writer head.
 - Preserve PR #2 as the stacked documentation/licensing foundation.
-- Add a browser-driven interaction suite when a reproducible browser runtime is owned by the repository.
-- Before supported release, implement the configurable geocoding port, provider switch/caching policy, localization for supported locales, and production traffic validation.
+- Keep source-contract tests proving save is local-only, the public endpoint and lookup control are absent, and manual coordinate fields remain.
+- Before supported release, implement and release the configurable provider port with traffic, switching, privacy, localization, security, and production-load evidence.
 
 ## References
 

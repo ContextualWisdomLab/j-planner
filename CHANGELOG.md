@@ -6,10 +6,10 @@ All notable J플래너 changes are recorded here. An entry under **Unreleased** 
 
 ### Changed
 
-- Decoupled item saving from Nominatim so browser-local persistence makes no implicit geocoding request.
-- Added an explicit, disclosed `위치 조회` action with accessible loading, success, no-match, offline, and network-error feedback.
-- Limited client-side public Nominatim requests to one per second and retained successful coordinates only through the user's later save action.
+- Removed implicit public Nominatim geocoding so browser-local item persistence makes no geocoding request.
+- Kept manual latitude and longitude entry available while public geocoding remains disabled.
+- Required a configurable provider port, site-wide traffic governance, and provider-switch contract before geocoding can return.
 
 ### Documentation
 
-- Added ADR-0001 and updated the product/technical Gap baseline for the external geocoding ACL and commercial provider-port Gap.
+- Added ADR-0001 and updated the product/technical Gap baseline for the disabled public-geocoding boundary and commercial provider-port Gap.

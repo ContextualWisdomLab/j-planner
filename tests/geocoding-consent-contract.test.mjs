@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+/** Read the single-file application source used by the contract tests. */
 async function applicationSource() {
   return readFile("index.html", "utf8");
 }
 
+/** Extract the item form implementation without evaluating browser globals. */
 function itemFormSource(application) {
   const match = application.match(
     /function openItemForm\(itemId=''\)\{(?<source>[\s\S]+?)\n  function bindChoiceChips/,
@@ -14,67 +16,31 @@ function itemFormSource(application) {
   return match.groups.source;
 }
 
-test("saving an item never sends its place or name to geocoding", async () => {
+test("saving an item remains browser-local", async () => {
   const form = itemFormSource(await applicationSource());
   const submit = form.match(
-    /dom\('itemForm'\)\.addEventListener\('submit',[\s\S]+?(?=\n    dom\('itemGeocodeBtn'\))/,
+    /dom\('itemForm'\)\.addEventListener\('submit',[\s\S]+?(?=\n    dom\('itemDeleteBtn'\))/,
   );
 
-  assert.ok(submit, "item submit handler must precede the explicit lookup handler");
+  assert.ok(submit, "item submit handler must remain inspectable");
+  assert.doesNotMatch(submit[0], /fetch\(/);
   assert.doesNotMatch(submit[0], /geocode\(/);
-  assert.doesNotMatch(submit[0], /nominatim\.openstreetmap\.org/);
+  assert.match(submit[0], /saveState\(/);
 });
 
-test("geocoding requires a disclosed, explicit user action", async () => {
+test("public Nominatim geocoding stays disabled without a governed provider port", async () => {
   const application = await applicationSource();
   const form = itemFormSource(application);
 
-  assert.match(
-    form,
-    /<button id="itemGeocodeBtn"[^>]*type="button"[^>]*>위치 조회<\/button>/,
-  );
-  assert.match(
-    form,
-    /입력한 장소 또는 일정 이름을 [\s\S]+OpenStreetMap Nominatim[\s\S]+으로 전송/,
-  );
-  assert.match(form, /https:\/\/operations\.osmfoundation\.org\/policies\/nominatim\//);
-  assert.match(form, /id="itemGeocodeStatus"[^>]*role="status"[^>]*aria-live="polite"/);
-  assert.match(
-    form,
-    /dom\('itemGeocodeBtn'\)\.addEventListener\('click',async \(\)=>\{[\s\S]+await geocode\(query\)/,
-  );
+  assert.doesNotMatch(application, /nominatim\.openstreetmap\.org/i);
+  assert.doesNotMatch(application, /function geocode\(/);
+  assert.doesNotMatch(form, /itemGeocodeBtn/);
 });
 
-test("explicit lookup exposes recoverable status without duplicate requests", async () => {
-  const application = await applicationSource();
-  const form = itemFormSource(application);
-
-  assert.match(form, /button\.disabled=true/);
-  assert.match(form, /button\.setAttribute\('aria-busy','true'\)/);
-  assert.match(form, /button\.removeAttribute\('aria-busy'\)/);
-  assert.match(form, /result\.status==='success'/);
-  assert.match(form, /result\.status==='not_found'/);
-  assert.match(form, /navigator\.onLine===false/);
-  assert.match(form, /다시 시도/);
-  assert.match(application, /1000-\(Date\.now\(\)-lastGeocodeAt\)/);
-  assert.match(application, /format=json&limit=1&accept-language=ko/);
-  assert.match(application, /referrerPolicy:'strict-origin-when-cross-origin'/);
-  assert.match(
-    application,
-    /return \{status:'success',lat:Number\(rows\[0\]\.lat\),lng:Number\(rows\[0\]\.lon\)\}/,
-  );
-  assert.match(application, /return \{status:'not_found'\}/);
-  assert.match(application, /return \{status:'error'\}/);
-});
-
-test("lookup results cannot update a closed or changed form", async () => {
+test("manual coordinates remain available without an external request", async () => {
   const form = itemFormSource(await applicationSource());
-  const lookup = form.match(
-    /dom\('itemGeocodeBtn'\)\.addEventListener\('click',async \(\)=>\{[\s\S]+?\n    \}\);/,
-  );
 
-  assert.ok(lookup, "explicit lookup handler must remain inspectable");
-  assert.match(lookup[0], /await geocode\(query\)[\s\S]+if\(!button\.isConnected\) return/);
-  assert.match(lookup[0], /currentQuery!==query/);
-  assert.match(lookup[0], /검색어가 바뀌었어요[\s\S]+다시 조회/);
+  assert.match(form, /좌표 직접 입력\(선택\)/);
+  assert.match(form, /id="itemLat"[^>]*type="number"/);
+  assert.match(form, /id="itemLng"[^>]*type="number"/);
 });

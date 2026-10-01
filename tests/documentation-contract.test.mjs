@@ -2,27 +2,19 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("documents the Nominatim geocoding boundary", async () => {
+test("documents the disabled public-geocoding boundary", async () => {
   const [readme, baseline, application] = await Promise.all([
     readFile("README.md", "utf8"),
     readFile("docs/product-technical-gap-baseline.md", "utf8"),
     readFile("index.html", "utf8"),
   ]);
 
-  assert.match(application, /nominatim\.openstreetmap\.org\/search/);
-  assert.match(
-    application,
-    /OpenStreetMap Nominatim[\s\S]+id="itemGeocodeBtn"[^>]+type="button">위치 조회/,
-  );
-  assert.match(readme, /일정 저장 자체는 외부 지오코딩 요청을 만들지 않습니다/);
-  assert.match(
-    baseline,
-    /external Nominatim geocoding \(explicit place\/name lookup\), OpenStreetMap tiles and OSRM routes/,
-  );
-  assert.match(
-    baseline,
-    /Saving an item never invokes geocoding\./,
-  );
+  assert.doesNotMatch(application, /nominatim\.openstreetmap\.org/i);
+  assert.doesNotMatch(application, /function geocode\(/);
+  assert.match(readme, /자동 좌표 조회는 제공하지 않으며/);
+  assert.match(readme, /필요한 좌표는 일정 편집 화면에서 직접 입력/);
+  assert.match(baseline, /Public geocoding is disabled/);
+  assert.match(baseline, /external OpenStreetMap tiles and OSRM routes/);
 });
 
 test("documents Google Maps fallback navigation as an external boundary", async () => {
