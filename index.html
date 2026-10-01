@@ -1088,6 +1088,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
       button.disabled=true; button.setAttribute('aria-busy','true'); button.textContent='조회 중…'; status.textContent='Nominatim에서 좌표를 조회하고 있어요.';
       try{
         const result=await geocode(query);
+        if(!button.isConnected) return;
+        const currentQuery=dom('itemPlace').value.trim()||dom('itemName').value.trim();
+        if(currentQuery!==query){ status.textContent='조회 중 검색어가 바뀌었어요. 현재 검색어로 다시 조회하세요.'; return; }
         if(result.status==='success'){ dom('itemLat').value=String(result.lat); dom('itemLng').value=String(result.lng); status.textContent='좌표를 찾았어요. 저장하면 이 좌표를 브라우저에 보관합니다.'; }
         else if(result.status==='not_found') status.textContent='좌표를 찾지 못했어요. 검색어를 바꿔 다시 시도하세요.';
         else status.textContent='위치 조회 중 네트워크 오류가 발생했어요. 잠시 후 다시 시도하세요.';

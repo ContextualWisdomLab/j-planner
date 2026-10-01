@@ -66,3 +66,15 @@ test("explicit lookup exposes recoverable status without duplicate requests", as
   assert.match(application, /return \{status:'not_found'\}/);
   assert.match(application, /return \{status:'error'\}/);
 });
+
+test("lookup results cannot update a closed or changed form", async () => {
+  const form = itemFormSource(await applicationSource());
+  const lookup = form.match(
+    /dom\('itemGeocodeBtn'\)\.addEventListener\('click',async \(\)=>\{[\s\S]+?\n    \}\);/,
+  );
+
+  assert.ok(lookup, "explicit lookup handler must remain inspectable");
+  assert.match(lookup[0], /await geocode\(query\)[\s\S]+if\(!button\.isConnected\) return/);
+  assert.match(lookup[0], /currentQuery!==query/);
+  assert.match(lookup[0], /검색어가 바뀌었어요[\s\S]+다시 조회/);
+});
