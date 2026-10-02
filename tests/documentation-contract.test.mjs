@@ -44,12 +44,18 @@ test("documents Google Maps fallback navigation as an external boundary", async 
 });
 
 test("binds product and technical design to the implemented static boundary", async () => {
-  const [prd, trd, architecture, baseline] = await Promise.all([
+  const [prd, trd, architecture, baseline, application] = await Promise.all([
     readFile("docs/PRD.md", "utf8"),
     readFile("docs/TRD.md", "utf8"),
     readFile("docs/ARCHITECTURE.md", "utf8"),
     readFile("docs/product-technical-gap-baseline.md", "utf8"),
+    readFile("index.html", "utf8"),
   ]);
+
+  for (const document of [prd, trd, architecture]) {
+    assert.match(document, /Status: \*\*Proposed\*\*/);
+    assert.doesNotMatch(document, /Status: \*\*(?:Accepted|Released)\*\*/);
+  }
 
   assert.match(prd, /browser-local travel planner/i);
   assert.match(prd, /JSON backup/);
@@ -63,12 +69,23 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(trd, /OSRM route/i);
   assert.match(trd, /Google Maps/i);
   assert.match(trd, /public geocoding remains disabled/i);
+  assert.match(trd, /when no custom map URL is stored/i);
 
   assert.match(architecture, /Bounded Context/);
-  assert.match(architecture, /Travel Plan aggregate/);
+  assert.match(architecture, /Trip aggregate/);
+  assert.match(architecture, /System context/);
   assert.match(architecture, /ERD status: not applicable/i);
   assert.match(architecture, /no server database/i);
   assert.match(architecture, /```mermaid/);
+
+  assert.match(application, /window\.localStorage\.setItem/);
+  assert.match(application, /https:\/\/tile\.openstreetmap\.org/);
+  assert.match(application, /https:\/\/router\.project-osrm\.org/);
+  assert.match(application, /if\(item\.mapUrl\) return item\.mapUrl/);
+  assert.doesNotMatch(application, /nominatim\.openstreetmap\.org/i);
+
+  assert.doesNotMatch(trd, /k6-compatible/i);
+  assert.doesNotMatch(architecture, /canonical owners/i);
 
   assert.match(baseline, /\| PRD \| `docs\/PRD\.md`/);
   assert.match(baseline, /\| TRD \| `docs\/TRD\.md`/);
