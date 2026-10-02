@@ -42,3 +42,36 @@ test("documents Google Maps fallback navigation as an external boundary", async 
     /external Google Maps search\/directions \(place\/name query on user action\)/,
   );
 });
+
+test("binds product and technical design to the implemented static boundary", async () => {
+  const [prd, trd, architecture, baseline] = await Promise.all([
+    readFile("docs/PRD.md", "utf8"),
+    readFile("docs/TRD.md", "utf8"),
+    readFile("docs/ARCHITECTURE.md", "utf8"),
+    readFile("docs/product-technical-gap-baseline.md", "utf8"),
+  ]);
+
+  assert.match(prd, /browser-local travel planner/i);
+  assert.match(prd, /JSON backup/);
+  assert.match(prd, /ICS export/);
+  assert.match(prd, /manual latitude and longitude/i);
+  assert.match(prd, /No J플래너 account or server database/i);
+
+  assert.match(trd, /single static `index\.html`/i);
+  assert.match(trd, /browser `localStorage`/i);
+  assert.match(trd, /OpenStreetMap tile/i);
+  assert.match(trd, /OSRM route/i);
+  assert.match(trd, /Google Maps/i);
+  assert.match(trd, /public geocoding remains disabled/i);
+
+  assert.match(architecture, /Bounded Context/);
+  assert.match(architecture, /Travel Plan aggregate/);
+  assert.match(architecture, /ERD status: not applicable/i);
+  assert.match(architecture, /no server database/i);
+  assert.match(architecture, /```mermaid/);
+
+  assert.match(baseline, /\| PRD \| `docs\/PRD\.md`/);
+  assert.match(baseline, /\| TRD \| `docs\/TRD\.md`/);
+  assert.match(baseline, /\| Architecture \/ UML \| `docs\/ARCHITECTURE\.md`/);
+  assert.match(baseline, /\| JPL-DES-001 \|[^\n]+\|[^\n]+\| Proposed repair \|/);
+});
