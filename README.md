@@ -55,6 +55,9 @@ Browser
 
 - `index.html` — 배포 소스인 단일 파일 J플래너 웹 앱. 애플리케이션 CSS/JavaScript와 Leaflet 1.9.4가 인라인되어 있습니다.
 - `README.md` — 사용자와 유지관리자를 위한 제품 안내입니다.
+- [`docs/PRD.md`](docs/PRD.md) — 구현된 사용자 결과, 불변조건, 수용 장면과 비목표를 정의합니다.
+- [`docs/TRD.md`](docs/TRD.md) — 정적 runtime, browser-local state, 외부 서비스 ACL과 검증 경계를 정의합니다.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Bounded Context, aggregate, Context Map, UML과 ERD 비적용 근거를 정의합니다.
 - [`docs/product-technical-gap-baseline.md`](docs/product-technical-gap-baseline.md) — 보호 소스, publication, release, 설계·운영 Gap의 근거와 상태입니다.
 - `LICENSE` — J플래너의 원저작물에 적용되는 Apache License 2.0입니다.
 - `THIRD_PARTY_NOTICES.md` — 인라인 반입된 Leaflet 등 제3자 코드의 별도 라이선스 고지입니다.

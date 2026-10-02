@@ -1,7 +1,7 @@
 # J플래너 product and technical gap baseline
 
 Status: **Proposed**
-Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2) foundation head `f9f9fa2afc3d15f4cb24112fccefe0d150ecdb87`, repository metadata, and this stacked writer branch, observed 2026-10-01.
+Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2) foundation head `f9f9fa2afc3d15f4cb24112fccefe0d150ecdb87`, repository metadata, and this stacked writer branch, observed 2026-10-02.
 
 This baseline distinguishes protected-source evidence from proposed PR content and live publication. An open PR is not a release or deployment.
 
@@ -30,9 +30,9 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | Artifact | Current evidence | Status |
 | --- | --- | --- |
 | README | Customer purpose, use, data-loss warning, boundaries, architecture, support expectations, and license are documented in PR #2. | Proposed |
-| PRD | No dedicated PRD is present on the protected base or this writer branch. Product behavior is currently evidenced by `index.html` and README. | Gap |
-| TRD | No dedicated TRD is present. The single-file runtime and external network calls are visible in `index.html`. | Gap |
-| UML | No maintained UML artifact is present. The Context Map above is the bounded architecture view for this documentation change. | Gap |
+| PRD | `docs/PRD.md` binds users, outcomes, invariants, acceptance scenes, and non-goals to implemented behavior. It exists only on this writer branch. | Proposed |
+| TRD | `docs/TRD.md` records the static runtime, browser state, external ACLs, failure handling, and verification boundary. It exists only on this writer branch. | Proposed |
+| Architecture / UML | `docs/ARCHITECTURE.md` records the Bounded Context, aggregate, Context Map, logical components, state transitions, and failure boundaries. It exists only on this writer branch. | Proposed |
 | ERD | No server database exists in the documented product boundary; browser-local JSON state is not represented as a relational ERD. | Not applicable until a database is introduced |
 | ADR | ADR-0001 proposes disabling public geocoding until a governed provider port exists. It is not Accepted before merge. | Proposed |
 | Release | Repository metadata reports zero GitHub Releases. Source or version strings must not be treated as an immutable release. | Open |
@@ -51,7 +51,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | JPL-PUB-001 | Pages source/settings do not prove current HTTP delivery. | Verify the configured public URL after ordinary merge and record the observed revision and timestamp before claiming publication. | Open |
 | JPL-REL-001 | No immutable GitHub Release binds source, license, and provenance. | Produce a versioned release only after release acceptance confirms source revision, SBOM/provenance, and third-party notices. | Open |
 | JPL-SEC-001 | Historical dependency review could not query the dependency graph (HTTP 403). | Repair the central workflow owner; retain fail-closed behavior for dependency-changing PRs and verify a fresh exact-head run when applicable. | Open upstream |
-| JPL-DES-001 | PRD and TRD evidence remain absent; the first bounded ADR is proposed for the geocoding privacy boundary. | Accept ADR-0001 only with the behavior change, then add PRD/TRD evidence when a wider product or operational decision requires it. | Open |
+| JPL-DES-001 | Protected source lacks dedicated PRD, TRD, and maintained architecture/UML evidence; this writer branch proposes all three without inventing a database or service boundary. | Keep their contracts aligned with `index.html`; integrate only through the PR #2 → PR #3 stack after exact-head Checks and required independent review. | Proposed repair |
 | JPL-OPS-001 | No product-owned support or incident route is documented. | Define a public support and vulnerability-reporting route before a supported release claim. | Open |
 
 ## Merge and release gate

@@ -13,3 +13,4 @@ All notable J플래너 changes are recorded here. An entry under **Unreleased** 
 ### Documentation
 
 - Added ADR-0001 and updated the product/technical Gap baseline for the disabled public-geocoding boundary and commercial provider-port Gap.
+- Added Proposed PRD, TRD, and architecture evidence bound to the implemented static/browser-local product boundary.
