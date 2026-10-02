@@ -77,6 +77,7 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(architecture, /ERD status: not applicable/i);
   assert.match(architecture, /no server database/i);
   assert.match(architecture, /```mermaid/);
+  assert.doesNotMatch(architecture, /Travel Plan (?:aggregate|functions)/);
 
   assert.match(application, /window\.localStorage\.setItem/);
   assert.match(application, /https:\/\/tile\.openstreetmap\.org/);
@@ -91,4 +92,6 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(baseline, /\| TRD \| `docs\/TRD\.md`/);
   assert.match(baseline, /\| Architecture \/ UML \| `docs\/ARCHITECTURE\.md`/);
   assert.match(baseline, /\| JPL-DES-001 \|[^\n]+\|[^\n]+\| Proposed repair \|/);
+  assert.match(baseline, /Context Map status/);
+  assert.doesNotMatch(baseline, /k6 delivery evidence/i);
 });

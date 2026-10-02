@@ -899,6 +899,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   const dom = id => document.getElementById(id);
   const deepCopy = value => JSON.parse(JSON.stringify(value));
   const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  const normalizeId = (value,prefix) => {
+    const candidate=String(value||'');
+    return /^[A-Za-z0-9_-]{1,128}$/.test(candidate)?candidate:uid(prefix);
+  };
   const pad = n => String(n).padStart(2,'0');
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
   const parseLocalDate = value => { const [y,m,d] = String(value).split('-').map(Number); return new Date(y,m-1,d,12,0,0,0); };
@@ -932,12 +936,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
   function normalizeState(value){
     if(!value || !Array.isArray(value.trips) || !value.trips.length) return seedState();
     const trips = value.trips.map(trip => ({
-      id:String(trip.id || uid('trip')), title:String(trip.title || '새 여행'), start:String(trip.start || isoLocal(new Date())), end:String(trip.end || trip.start || isoLocal(new Date())),
+      id:normalizeId(trip.id,'trip'), title:String(trip.title || '새 여행'), start:String(trip.start || isoLocal(new Date())), end:String(trip.end || trip.start || isoLocal(new Date())),
       note:String(trip.note || ''), cities:Array.isArray(trip.cities) ? trip.cities.map(String).filter(Boolean) : [], background:String(trip.background || ''),
-      flights:Array.isArray(trip.flights) ? trip.flights.map(f=>({...f,id:String(f.id||uid('flight'))})) : [],
-      items:Array.isArray(trip.items) ? trip.items.map(item=>({id:String(item.id||uid('item')),day:String(item.day||trip.start),time:String(item.time||'09:00'),cat:CATEGORIES[item.cat]?item.cat:'기타',name:String(item.name||'일정'),place:String(item.place||''),mapUrl:String(item.mapUrl||''),memo:String(item.memo||''),move:String(item.move||''),alarm:String(item.alarm||''),lat:Number.isFinite(Number(item.lat))?Number(item.lat):null,lng:Number.isFinite(Number(item.lng))?Number(item.lng):null,userDocs:Array.isArray(item.userDocs)?item.userDocs.filter(d=>d&&d.data).map(d=>({name:String(d.name||'첨부파일'),data:String(d.data)})):[]})) : []
+      flights:Array.isArray(trip.flights) ? trip.flights.map(f=>({...f,id:normalizeId(f.id,'flight')})) : [],
+      items:Array.isArray(trip.items) ? trip.items.map(item=>({id:normalizeId(item.id,'item'),day:String(item.day||trip.start),time:String(item.time||'09:00'),cat:CATEGORIES[item.cat]?item.cat:'기타',name:String(item.name||'일정'),place:String(item.place||''),mapUrl:String(item.mapUrl||''),memo:String(item.memo||''),move:String(item.move||''),alarm:String(item.alarm||''),lat:Number.isFinite(Number(item.lat))?Number(item.lat):null,lng:Number.isFinite(Number(item.lng))?Number(item.lng):null,userDocs:Array.isArray(item.userDocs)?item.userDocs.filter(d=>d&&d.data).map(d=>({name:String(d.name||'첨부파일'),data:String(d.data)})):[]})) : []
     })).map(trip => parseLocalDate(trip.end) < parseLocalDate(trip.start) ? {...trip,end:trip.start} : trip);
-    const activeId = trips.some(t=>t.id===value.activeId) ? value.activeId : trips[0].id;
+    const requestedActiveId=String(value.activeId||'');
+    const activeId = trips.some(t=>t.id===requestedActiveId) ? requestedActiveId : trips[0].id;
     return {trips,activeId};
   }
 
@@ -1175,9 +1180,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   function currentIndexFor(items){if(!items.length)return 0;const today=isoLocal(new Date());if(ui.selectedDay<today)return items.length-1;if(ui.selectedDay>today)return 0;const now=minutesOf(`${pad(new Date().getHours())}:${pad(new Date().getMinutes())}`);let index=0;items.forEach((item,i)=>{if(minutesOf(item.time)<=now)index=i;});return index;}
   function updateOverview(refit=false){
     const items=sortedItems().filter(i=>Number.isFinite(i.lat)&&Number.isFinite(i.lng));mapState.items=items;dom('mapEmpty').hidden=!!items.length;dom('journeyPanel').hidden=!items.length;
+    const token=++ui.routeToken;
     if(!items.length){mapState.routes=[];renderMap();return;}
     if(ui.journeyDay!==ui.selectedDay){ui.journeyDay=ui.selectedDay;ui.journeyIndex=currentIndexFor(items);mapState.character=null;refit=true;}
-    ui.journeyIndex=clamp(ui.journeyIndex,0,items.length-1);if(refit)fitMap(items);renderJourneyPanel();renderMap();const token=++ui.routeToken;loadRoutes(items,token);
+    ui.journeyIndex=clamp(ui.journeyIndex,0,items.length-1);if(refit)fitMap(items);renderJourneyPanel();renderMap();loadRoutes(items,token);
   }
   function renderJourneyPanel(){const item=mapState.items[ui.journeyIndex];if(!item)return;dom('journeyTitle').textContent=`${item.time} · ${item.name}`;dom('journeyPlace').textContent=item.place||item.memo||'장소 정보 없음';const count=mapState.items.length;dom('journeyProgress').style.width=`${((ui.journeyIndex+1)/count)*100}%`;dom('journeyProgressText').textContent=`오늘의 여정 ${ui.journeyIndex+1}/${count}`;dom('prevJourney').disabled=ui.journeyIndex<=0;dom('nextJourney').disabled=ui.journeyIndex>=count-1;}
   function haversine(a,b){const r=6371,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lng-a.lng)*Math.PI/180,x=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*r*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}

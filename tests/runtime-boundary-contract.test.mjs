@@ -25,4 +25,18 @@ test("normalizes imported identifiers before HTML attribute interpolation", asyn
   assert.match(application, /id:normalizeId\(trip\.id,'trip'\)/);
   assert.match(application, /id:normalizeId\(f\.id,'flight'\)/);
   assert.match(application, /id:normalizeId\(item\.id,'item'\)/);
+
+  const uidSource = application.match(/const uid = prefix => .*?;/)?.[0];
+  const normalizeSource = application.match(
+    /const normalizeId = \(value,prefix\) => \{[\s\S]*?\n  \};/,
+  )?.[0];
+  assert.ok(uidSource && normalizeSource);
+
+  const normalizeId = Function(
+    `"use strict"; ${uidSource} ${normalizeSource} return normalizeId;`,
+  )();
+  assert.equal(normalizeId("trip-safe_1", "trip"), "trip-safe_1");
+  const repaired = normalizeId('bad" onclick="alert(1)', "trip");
+  assert.match(repaired, /^[A-Za-z0-9_-]{1,128}$/);
+  assert.notEqual(repaired, 'bad" onclick="alert(1)');
 });

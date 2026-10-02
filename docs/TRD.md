@@ -8,7 +8,7 @@ J플래너 is delivered as a single static `index.html`. Application HTML, CSS, 
 
 ## State and files
 
-- The Travel Plan aggregate is serialised as JSON in browser `localStorage` under the application origin.
+- Application state containing Trip records and the active-trip identity is serialised as JSON in browser `localStorage` under the application origin.
 - Runtime input is normalised before it becomes active state; absent or unusable state falls back to the built-in starter trip.
 - JSON backup is the user-controlled portability path.
 - ICS files are generated for calendar hand-off.
@@ -19,8 +19,8 @@ J플래너 is delivered as a single static `index.html`. Application HTML, CSS, 
 | Capability | Boundary and data | Required behavior |
 | --- | --- | --- |
 | OpenStreetMap tile rendering | Browser requests map tiles for the visible map area. | Failure must not prevent local itinerary editing. |
-| OSRM route rendering | Browser requests route geometry for activities with coordinates. | Stale responses must not replace the current route view. |
-| Google Maps navigation | On an explicit user action, the activity place or name is encoded in a search or directions URL. | Open with `noopener`; blocked pop-ups are reported to the user. |
+| OSRM route rendering | Browser requests route geometry for activities with coordinates. | Requests time out after eight seconds; a current-view token rejects late results, including after the view becomes empty. Failure currently falls back to a straight line without a visible warning. |
+| Google Maps navigation | When no custom map URL is stored, an explicit user action encodes the activity place or name in a search or directions URL. A stored custom URL is otherwise opened. | Open with `noopener`; blocked pop-ups are reported to the user. |
 | Public geocoding | No provider is configured. | Public geocoding remains disabled during save and edit. |
 
 A future geocoding capability requires a configurable product-owned port, permitted caching and attribution, site-wide traffic governance, provider-switch behavior, contract tests, and an immutable owner release before consumer integration.
@@ -29,18 +29,16 @@ A future geocoding capability requires a configurable product-owned port, permit
 
 1. Saving and editing must make no implicit geocoding request.
 2. External navigation must be initiated by the traveller and use a new window without an opener reference.
-3. Rendered user text must pass through the existing escaping boundary before HTML insertion.
-4. Storage, import, file, map, and pop-up failures must be visible and must not be described as successful durable persistence.
+3. Imported trip, flight, and activity identifiers are constrained to safe attribute characters or regenerated. Full imported-field schema validation and safe attribute construction remain open security work.
+4. A failed local storage write and a blocked navigation pop-up are visible. Storage read/removal, attachment-read, tile, and route-fallback visibility remain open operability work.
 5. Source, documentation, third-party notices, and provenance must agree before a versioned release.
 
 ## Operability and performance
 
-The static runtime has no server connection pool to close. External network calls must remain independently cancellable or supersedable by current UI state. Browser interaction, storage quota, attachment size, and external provider latency are the principal operational constraints.
-
-The target for a future published performance gate is p95 at or below 20 ms for product-owned page handling under a recorded browser and device profile. This document does not claim that target has been measured. A realistic browser test and k6-compatible delivery test must be added before treating it as release evidence.
+The static runtime has no server connection pool to close. OSRM requests have an eight-second abort boundary, and current-view tokens prevent late route results from replacing the selected or empty view. Tile loading and external navigation remain browser/provider operations. Browser interaction, storage quota, attachment size, and external provider latency are the principal operational constraints.
 
 ## Verification
 
 - `node --test tests/*.test.mjs` verifies the local persistence, disabled-geocoding, manual-coordinate, and documentation contracts.
-- Browser verification must cover trip and activity changes, JSON backup and restore, ICS export, coordinate map behavior, external navigation, storage failure, and malformed import.
+- Browser verification remains a Gap for trip and activity changes, JSON backup and restore, ICS export, coordinate map behavior, external navigation, storage failure, hostile import, and external-provider failure states.
 - Exact-head hosted Checks and independent review remain merge gates. A source tree or open PR is not publication evidence.

@@ -9,6 +9,8 @@ All notable J플래너 changes are recorded here. An entry under **Unreleased** 
 - Removed implicit public Nominatim geocoding so browser-local item persistence makes no geocoding request.
 - Kept manual latitude and longitude entry available while public geocoding remains disabled.
 - Required a configurable provider port, site-wide traffic governance, and provider-switch contract before geocoding can return.
+- Invalidated pending OSRM results when the selected map view becomes empty.
+- Regenerated unsafe imported trip, flight, and activity identifiers before HTML attribute use.
 
 ### Documentation
 

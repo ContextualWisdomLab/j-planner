@@ -31,8 +31,8 @@ The primary user is an individual traveller. They need to:
 ## Invariants
 
 1. An activity save completes locally without disclosing its place or name to a geocoder.
-2. A malformed imported value cannot replace the active state unless it normalises to a non-empty trip collection.
-3. Browser storage failure is surfaced to the traveller; it is not represented as durable server persistence.
+2. JSON import replaces the current state only after explicit confirmation; malformed JSON syntax is rejected. Structural validation beyond the current normalisation boundary remains an open Gap.
+3. A browser storage write failure is surfaced to the traveller; it is not represented as durable server persistence. Read and removal failure UX remains an open Gap.
 4. Documentation cannot claim current publication or release without separately observed evidence.
 
 ## Acceptance scenes
@@ -41,7 +41,7 @@ The primary user is an individual traveller. They need to:
 | --- | --- |
 | A traveller creates an activity without coordinates | The activity is stored locally and no geocoding request is made. |
 | A traveller enters valid coordinates | The activity remains editable and can participate in coordinate-based map and route views. |
-| A traveller opens map search or directions | A new Google Maps URL receives the activity place or name only after that action. |
+| A traveller opens map search or directions | A stored custom map URL opens when present; otherwise a new Google Maps URL receives the activity place or name only after that action. |
 | A traveller prepares for browser cleanup or device change | JSON backup and ICS export are available as user-controlled hand-off paths. |
 | An external map service is unavailable | Local itinerary editing remains available; the external map or route action may fail independently. |
 
