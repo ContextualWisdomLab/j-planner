@@ -6,6 +6,7 @@ All notable J플래너 changes are recorded here. An entry under **Unreleased** 
 
 ### Changed
 
+- Rejected imported custom-map URLs unless they are credential-free HTTPS URLs; unsafe values now use the existing user-triggered Google Maps fallback.
 - Removed implicit public Nominatim geocoding so browser-local item persistence makes no geocoding request.
 - Kept manual latitude and longitude entry available while public geocoding remains disabled.
 - Required a configurable provider port, site-wide traffic governance, and provider-switch contract before geocoding can return.

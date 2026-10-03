@@ -910,6 +910,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   const minutesOf = value => { const [h,m] = String(value || '00:00').split(':').map(Number); return (h||0)*60+(m||0); };
   const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
+  function safeExternalUrl(value){
+    try{const url=new URL(String(value||''));return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch{return '';}
+  }
+
   const storage = {
     get(key){ try { return window.localStorage ? window.localStorage.getItem(key) : null; } catch(error){ console.warn('localStorage 읽기 실패', error); return null; } },
     set(key,value){ try { if(window.localStorage) window.localStorage.setItem(key,value); return true; } catch(error){ console.warn('localStorage 저장 실패', error); return false; } },
@@ -1030,7 +1034,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
 
   function mapQuery(item){ return item.place || item.name; }
-  function preferredMapUrl(item,mode){ const q=encodeURIComponent(mapQuery(item)); if(item.mapUrl) return item.mapUrl; return mode==='dir'?`https://www.google.com/maps/dir/?api=1&destination=${q}`:`https://www.google.com/maps/search/?api=1&query=${q}`; }
+  function preferredMapUrl(item,mode){ const q=encodeURIComponent(mapQuery(item)),customUrl=safeExternalUrl(item.mapUrl); if(customUrl) return customUrl; return mode==='dir'?`https://www.google.com/maps/dir/?api=1&destination=${q}`:`https://www.google.com/maps/search/?api=1&query=${q}`; }
   function renderSchedules(){
     const items=sortedItems(); dom('scheduleHeading').textContent=`${formatKoreanDate(ui.selectedDay)} 일정`; dom('scheduleCount').textContent=`${items.length}개 일정 · 시간순`;
     dom('scheduleList').innerHTML=items.length?`<div id="day-${ui.selectedDay}" class="schedule-list">${items.map(item=>{

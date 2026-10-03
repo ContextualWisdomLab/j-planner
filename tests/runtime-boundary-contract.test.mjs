@@ -69,6 +69,8 @@ test("rejects unsafe imported map URLs before external navigation", async () => 
     "javascript:alert(document.domain)",
     "data:text/html,<script>alert(1)</script>",
     "http://maps.example.test/place",
+    "https://user:pass@maps.example.test/place",
+    "not a URL",
   ]) {
     assert.equal(
       preferredMapUrl({ mapUrl: unsafeUrl, place: "Tokyo" }, "map"),

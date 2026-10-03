@@ -20,7 +20,7 @@ J플래너 is delivered as a single static `index.html`. Application HTML, CSS, 
 | --- | --- | --- |
 | OpenStreetMap tile rendering | Browser requests map tiles for the visible map area. | Failure must not prevent local itinerary editing. |
 | OSRM route rendering | Browser requests route geometry for activities with coordinates. | Requests time out after eight seconds; a current-view token rejects late results, including after the view becomes empty. Failure currently falls back to a straight line without a visible warning. |
-| Google Maps navigation | When no custom map URL is stored, an explicit user action encodes the activity place or name in a search or directions URL. A stored custom URL is otherwise opened. | Open with `noopener`; blocked pop-ups are reported to the user. |
+| Google Maps navigation | When no credential-free HTTPS custom map URL is stored, an explicit user action encodes the activity place or name in a search or directions URL. Unsafe or malformed imported custom URLs fail closed to that fallback. | Open with `noopener`; blocked pop-ups are reported to the user. |
 | Public geocoding | No provider is configured. | Public geocoding remains disabled during save and edit. |
 
 A future geocoding capability requires a configurable product-owned port, permitted caching and attribution, site-wide traffic governance, provider-switch behavior, contract tests, and an immutable owner release before consumer integration.
@@ -29,7 +29,7 @@ A future geocoding capability requires a configurable product-owned port, permit
 
 1. Saving and editing must make no implicit geocoding request.
 2. External navigation must be initiated by the traveller and use a new window without an opener reference.
-3. Imported trip, flight, and activity identifiers are constrained to safe attribute characters or regenerated. Full imported-field schema validation and safe attribute construction remain open security work.
+3. Imported trip, flight, and activity identifiers are constrained to safe attribute characters or regenerated. Custom-map navigation admits only credential-free HTTPS URLs. Full imported-field schema validation and safe attribute construction remain open security work.
 4. A failed local storage write and a blocked navigation pop-up are visible. Storage read/removal, attachment-read, tile, and route-fallback visibility remain open operability work.
 5. Source, documentation, third-party notices, and provenance must agree before a versioned release.
 

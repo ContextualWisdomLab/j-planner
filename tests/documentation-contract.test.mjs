@@ -69,7 +69,7 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(trd, /OSRM route/i);
   assert.match(trd, /Google Maps/i);
   assert.match(trd, /public geocoding remains disabled/i);
-  assert.match(trd, /when no custom map URL is stored/i);
+  assert.match(trd, /credential-free HTTPS custom map URL/i);
 
   assert.match(architecture, /Bounded Context/);
   assert.match(architecture, /Trip aggregate/);
@@ -82,7 +82,6 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(application, /window\.localStorage\.setItem/);
   assert.match(application, /https:\/\/tile\.openstreetmap\.org/);
   assert.match(application, /https:\/\/router\.project-osrm\.org/);
-  assert.match(application, /if\(item\.mapUrl\) return item\.mapUrl/);
   assert.doesNotMatch(application, /nominatim\.openstreetmap\.org/i);
 
   assert.doesNotMatch(trd, /k6-compatible/i);
