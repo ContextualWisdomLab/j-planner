@@ -33,7 +33,7 @@ J플래너의 여행 데이터는 브라우저 저장소를 중심으로 동작�
 
 이 구조는 간단하지만 브라우저 데이터 삭제, 사이트 저장공간 초기화, 기기 교체가 데이터 손실로 이어질 수 있습니다. 중요한 여행이라면 출발 전에 JSON 백업을 별도 보관하고, 필요한 일정은 ICS로 내보내세요.
 
-지도 표시는 Leaflet을 사용합니다. 좌표가 없을 때 장소 또는 일정 이름을 Nominatim 지오코딩 질의로 보내며, 지도 타일은 OpenStreetMap에서, 도로 경로 좌표는 OSRM에서 조회합니다. 별도 지도 URL이 없는 일정에서 사용자가 지도 검색이나 길찾기를 열면 장소 또는 일정 이름이 Google Maps 검색·길찾기 URL의 질의로 전달됩니다. 이러한 외부 서비스는 각 제공자의 네트워크·이용 조건을 따르므로, 브라우저 로컬 저장이라는 설명이 모든 외부 네트워크 요청의 부재를 의미하지는 않습니다.
+지도 표시는 Leaflet을 사용합니다. 일정 저장과 편집은 외부 지오코딩 요청을 만들지 않습니다. 공개 지오코딩 서비스의 사이트 전체 사용량 제한과 공급자 전환 계약을 정적 앱에서 보장할 수 없어 자동 좌표 조회는 제공하지 않으며, 필요한 좌표는 일정 편집 화면에서 직접 입력할 수 있습니다. 지도 타일은 OpenStreetMap에서, 도로 경로 좌표는 OSRM에서 조회합니다. 별도 지도 URL이 없는 일정에서 사용자가 지도 검색이나 길찾기를 열면 장소 또는 일정 이름이 Google Maps 검색·길찾기 URL의 질의로 전달됩니다. 이러한 외부 서비스는 각 제공자의 네트워크·이용 조건을 따르므로, 브라우저 로컬 저장이라는 설명이 모든 외부 네트워크 요청의 부재를 의미하지는 않습니다.
 
 ## 제품 경계
 
@@ -55,6 +55,9 @@ Browser
 
 - `index.html` — 배포 소스인 단일 파일 J플래너 웹 앱. 애플리케이션 CSS/JavaScript와 Leaflet 1.9.4가 인라인되어 있습니다.
 - `README.md` — 사용자와 유지관리자를 위한 제품 안내입니다.
+- [`docs/PRD.md`](docs/PRD.md) — 구현된 사용자 결과, 불변조건, 수용 장면과 비목표를 정의합니다.
+- [`docs/TRD.md`](docs/TRD.md) — 정적 runtime, browser-local state, 외부 서비스 ACL과 검증 경계를 정의합니다.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Bounded Context, Trip aggregate, System context, UML과 ERD 비적용 근거를 정의합니다.
 - [`docs/product-technical-gap-baseline.md`](docs/product-technical-gap-baseline.md) — 보호 소스, publication, release, 설계·운영 Gap의 근거와 상태입니다.
 - `LICENSE` — J플래너의 원저작물에 적용되는 Apache License 2.0입니다.
 - `THIRD_PARTY_NOTICES.md` — 인라인 반입된 Leaflet 등 제3자 코드의 별도 라이선스 고지입니다.

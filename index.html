@@ -899,12 +899,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
   const dom = id => document.getElementById(id);
   const deepCopy = value => JSON.parse(JSON.stringify(value));
   const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+  const normalizeId = (value,prefix) => {
+    const candidate=String(value||'');
+    return /^[A-Za-z0-9_-]{1,128}$/.test(candidate)?candidate:uid(prefix);
+  };
   const pad = n => String(n).padStart(2,'0');
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
   const parseLocalDate = value => { const [y,m,d] = String(value).split('-').map(Number); return new Date(y,m-1,d,12,0,0,0); };
   const isoLocal = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
   const minutesOf = value => { const [h,m] = String(value || '00:00').split(':').map(Number); return (h||0)*60+(m||0); };
   const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
+
+  function safeExternalUrl(value){
+    try{const url=new URL(String(value||''));return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch{return '';}
+  }
 
   const storage = {
     get(key){ try { return window.localStorage ? window.localStorage.getItem(key) : null; } catch(error){ console.warn('localStorage 읽기 실패', error); return null; } },
@@ -932,12 +940,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
   function normalizeState(value){
     if(!value || !Array.isArray(value.trips) || !value.trips.length) return seedState();
     const trips = value.trips.map(trip => ({
-      id:String(trip.id || uid('trip')), title:String(trip.title || '새 여행'), start:String(trip.start || isoLocal(new Date())), end:String(trip.end || trip.start || isoLocal(new Date())),
+      id:normalizeId(trip.id,'trip'), title:String(trip.title || '새 여행'), start:String(trip.start || isoLocal(new Date())), end:String(trip.end || trip.start || isoLocal(new Date())),
       note:String(trip.note || ''), cities:Array.isArray(trip.cities) ? trip.cities.map(String).filter(Boolean) : [], background:String(trip.background || ''),
-      flights:Array.isArray(trip.flights) ? trip.flights.map(f=>({...f,id:String(f.id||uid('flight'))})) : [],
-      items:Array.isArray(trip.items) ? trip.items.map(item=>({id:String(item.id||uid('item')),day:String(item.day||trip.start),time:String(item.time||'09:00'),cat:CATEGORIES[item.cat]?item.cat:'기타',name:String(item.name||'일정'),place:String(item.place||''),mapUrl:String(item.mapUrl||''),memo:String(item.memo||''),move:String(item.move||''),alarm:String(item.alarm||''),lat:Number.isFinite(Number(item.lat))?Number(item.lat):null,lng:Number.isFinite(Number(item.lng))?Number(item.lng):null,userDocs:Array.isArray(item.userDocs)?item.userDocs.filter(d=>d&&d.data).map(d=>({name:String(d.name||'첨부파일'),data:String(d.data)})):[]})) : []
+      flights:Array.isArray(trip.flights) ? trip.flights.map(f=>({...f,id:normalizeId(f.id,'flight')})) : [],
+      items:Array.isArray(trip.items) ? trip.items.map(item=>({id:normalizeId(item.id,'item'),day:String(item.day||trip.start),time:String(item.time||'09:00'),cat:CATEGORIES[item.cat]?item.cat:'기타',name:String(item.name||'일정'),place:String(item.place||''),mapUrl:String(item.mapUrl||''),memo:String(item.memo||''),move:String(item.move||''),alarm:String(item.alarm||''),lat:Number.isFinite(Number(item.lat))?Number(item.lat):null,lng:Number.isFinite(Number(item.lng))?Number(item.lng):null,userDocs:Array.isArray(item.userDocs)?item.userDocs.filter(d=>d&&d.data).map(d=>({name:String(d.name||'첨부파일'),data:String(d.data)})):[]})) : []
     })).map(trip => parseLocalDate(trip.end) < parseLocalDate(trip.start) ? {...trip,end:trip.start} : trip);
-    const activeId = trips.some(t=>t.id===value.activeId) ? value.activeId : trips[0].id;
+    const requestedActiveId=String(value.activeId||'');
+    const activeId = trips.some(t=>t.id===requestedActiveId) ? requestedActiveId : trips[0].id;
     return {trips,activeId};
   }
 
@@ -1025,7 +1034,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
 
   function mapQuery(item){ return item.place || item.name; }
-  function preferredMapUrl(item,mode){ const q=encodeURIComponent(mapQuery(item)); if(item.mapUrl) return item.mapUrl; return mode==='dir'?`https://www.google.com/maps/dir/?api=1&destination=${q}`:`https://www.google.com/maps/search/?api=1&query=${q}`; }
+  function preferredMapUrl(item,mode){ const q=encodeURIComponent(mapQuery(item)),customUrl=safeExternalUrl(item.mapUrl); if(customUrl) return customUrl; return mode==='dir'?`https://www.google.com/maps/dir/?api=1&destination=${q}`:`https://www.google.com/maps/search/?api=1&query=${q}`; }
   function renderSchedules(){
     const items=sortedItems(); dom('scheduleHeading').textContent=`${formatKoreanDate(ui.selectedDay)} 일정`; dom('scheduleCount').textContent=`${items.length}개 일정 · 시간순`;
     dom('scheduleList').innerHTML=items.length?`<div id="day-${ui.selectedDay}" class="schedule-list">${items.map(item=>{
@@ -1072,10 +1081,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </form>`);
     bindChoiceChips('catChips','itemCat'); bindChoiceChips('moveChips','itemMove'); renderPendingDocs();
     dom('itemFiles').addEventListener('change',async e=>{ const files=[...e.target.files]; for(const file of files){ if(file.type.startsWith('image/')) ui.pendingDocs.push({name:file.name,data:await resizeImageFile(file,1600,1600,.84)}); else if(file.type==='application/pdf') ui.pendingDocs.push({name:file.name,data:await readFileDataUrl(file)}); } renderPendingDocs(); e.target.value=''; });
-    dom('itemForm').addEventListener('submit',async event=>{
+    dom('itemForm').addEventListener('submit',event=>{
       event.preventDefault(); const saveBtn=dom('itemSaveBtn'); saveBtn.disabled=true; saveBtn.textContent='저장 중…';
       const value={id:original?.id||uid('item'),day:dom('itemDay').value,time:dom('itemTime').value||'09:00',cat:dom('itemCat').value,name:dom('itemName').value.trim(),place:dom('itemPlace').value.trim(),mapUrl:dom('itemMapUrl').value.trim(),memo:dom('itemMemo').value.trim(),move:dom('itemMove').value,alarm:dom('itemAlarm').value,lat:numberOrNull(dom('itemLat').value),lng:numberOrNull(dom('itemLng').value),userDocs:deepCopy(ui.pendingDocs)};
-      if((value.lat===null||value.lng===null)&&(value.place||value.name)){ const found=await geocode(value.place||value.name); if(found){value.lat=found.lat;value.lng=found.lng;} }
       if(original){ const index=activeTrip().items.findIndex(x=>x.id===original.id); activeTrip().items[index]=value; } else activeTrip().items.push(value);
       ui.selectedDay=value.day; saveState(original?'일정을 수정했어요.':'일정을 추가했어요.'); closeSheet(); renderApp();
     });
@@ -1088,8 +1096,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
   function numberOrNull(value){ const n=Number(value); return value!==''&&Number.isFinite(n)?n:null; }
   function readFileDataUrl(file){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(String(reader.result)); reader.onerror=()=>reject(reader.error); reader.readAsDataURL(file); }); }
   function resizeImageFile(file,maxW,maxH,quality){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onerror=()=>reject(reader.error); reader.onload=()=>{ const img=new Image(); img.onerror=()=>reject(new Error('이미지 읽기 실패')); img.onload=()=>{ const ratio=Math.min(1,maxW/img.width,maxH/img.height), canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(img.width*ratio)); canvas.height=Math.max(1,Math.round(img.height*ratio)); const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,canvas.width,canvas.height); resolve(canvas.toDataURL('image/jpeg',quality)); }; img.src=String(reader.result); }; reader.readAsDataURL(file); }); }
-  async function geocode(query){ try{ const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),7000); const response=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ko&q=${encodeURIComponent(query)}`,{headers:{Accept:'application/json'},signal:controller.signal}); clearTimeout(timer); if(!response.ok) return null; const rows=await response.json(); if(rows[0]) return {lat:Number(rows[0].lat),lng:Number(rows[0].lon)}; }catch(error){ console.warn('좌표 검색 실패',error); } return null; }
-
   function openFlightForm(flightId=''){
     const original=flightId?activeTrip().flights.find(f=>f.id===flightId):null; const f=original?deepCopy(original):{id:'',date:ui.selectedDay,fromCode:'ICN',fromCity:'인천',fromTime:'',toCode:'',toCity:'',toTime:'',memo:''};
     openSheet(original?'항공편 편집':'항공편 추가',`<form id="flightForm" class="form-grid"><div class="field"><label for="flightDate">날짜</label><input id="flightDate" type="date" min="${activeTrip().start}" max="${activeTrip().end}" value="${escapeHtml(f.date||ui.selectedDay)}"></div><div class="form-row"><div class="field"><label for="fromCode">출발 공항코드</label><input id="fromCode" maxlength="4" value="${escapeHtml(f.fromCode)}"></div><div class="field"><label for="fromCity">출발 도시</label><input id="fromCity" value="${escapeHtml(f.fromCity)}"></div></div><div class="form-row"><div class="field"><label for="fromTime">출발 시간</label><input id="fromTime" type="time" value="${escapeHtml(f.fromTime)}"></div><div class="field"><label for="toTime">도착 시간</label><input id="toTime" type="time" value="${escapeHtml(f.toTime)}"></div></div><div class="form-row"><div class="field"><label for="toCode">도착 공항코드</label><input id="toCode" maxlength="4" value="${escapeHtml(f.toCode)}"></div><div class="field"><label for="toCity">도착 도시</label><input id="toCity" value="${escapeHtml(f.toCity)}"></div></div><div class="field"><label for="flightMemo">메모</label><input id="flightMemo" value="${escapeHtml(f.memo)}" placeholder="터미널, 편명 등"></div><div class="form-actions ${original?'three':''}">${original?'<button id="flightDeleteBtn" class="form-btn danger" type="button">삭제</button>':''}<button class="form-btn" data-cancel type="button">취소</button><button class="form-btn primary" type="submit">저장</button></div></form>`);
@@ -1178,9 +1184,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   function currentIndexFor(items){if(!items.length)return 0;const today=isoLocal(new Date());if(ui.selectedDay<today)return items.length-1;if(ui.selectedDay>today)return 0;const now=minutesOf(`${pad(new Date().getHours())}:${pad(new Date().getMinutes())}`);let index=0;items.forEach((item,i)=>{if(minutesOf(item.time)<=now)index=i;});return index;}
   function updateOverview(refit=false){
     const items=sortedItems().filter(i=>Number.isFinite(i.lat)&&Number.isFinite(i.lng));mapState.items=items;dom('mapEmpty').hidden=!!items.length;dom('journeyPanel').hidden=!items.length;
+    const token=++ui.routeToken;
     if(!items.length){mapState.routes=[];renderMap();return;}
     if(ui.journeyDay!==ui.selectedDay){ui.journeyDay=ui.selectedDay;ui.journeyIndex=currentIndexFor(items);mapState.character=null;refit=true;}
-    ui.journeyIndex=clamp(ui.journeyIndex,0,items.length-1);if(refit)fitMap(items);renderJourneyPanel();renderMap();const token=++ui.routeToken;loadRoutes(items,token);
+    ui.journeyIndex=clamp(ui.journeyIndex,0,items.length-1);if(refit)fitMap(items);renderJourneyPanel();renderMap();loadRoutes(items,token);
   }
   function renderJourneyPanel(){const item=mapState.items[ui.journeyIndex];if(!item)return;dom('journeyTitle').textContent=`${item.time} · ${item.name}`;dom('journeyPlace').textContent=item.place||item.memo||'장소 정보 없음';const count=mapState.items.length;dom('journeyProgress').style.width=`${((ui.journeyIndex+1)/count)*100}%`;dom('journeyProgressText').textContent=`오늘의 여정 ${ui.journeyIndex+1}/${count}`;dom('prevJourney').disabled=ui.journeyIndex<=0;dom('nextJourney').disabled=ui.journeyIndex>=count-1;}
   function haversine(a,b){const r=6371,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lng-a.lng)*Math.PI/180,x=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*r*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
