@@ -40,3 +40,39 @@ test("normalizes imported identifiers before HTML attribute interpolation", asyn
   assert.match(repaired, /^[A-Za-z0-9_-]{1,128}$/);
   assert.notEqual(repaired, 'bad" onclick="alert(1)');
 });
+
+test("rejects unsafe imported map URLs before external navigation", async () => {
+  const application = await readFile("index.html", "utf8");
+  const safeUrlSource = application.match(
+    /function safeExternalUrl\(value\)\{[\s\S]*?\n  \}/,
+  )?.[0];
+  const mapQuerySource = application.match(
+    /function mapQuery\(item\)\{[^\n]+\}/,
+  )?.[0];
+  const preferredUrlSource = application.match(
+    /function preferredMapUrl\(item,mode\)\{[^\n]+\}/,
+  )?.[0];
+
+  assert.ok(safeUrlSource && mapQuerySource && preferredUrlSource);
+  const preferredMapUrl = Function(
+    `"use strict"; ${safeUrlSource} ${mapQuerySource} ${preferredUrlSource} return preferredMapUrl;`,
+  )();
+
+  assert.equal(
+    preferredMapUrl(
+      { mapUrl: "https://maps.example.test/place", place: "Tokyo" },
+      "map",
+    ),
+    "https://maps.example.test/place",
+  );
+  for (const unsafeUrl of [
+    "javascript:alert(document.domain)",
+    "data:text/html,<script>alert(1)</script>",
+    "http://maps.example.test/place",
+  ]) {
+    assert.equal(
+      preferredMapUrl({ mapUrl: unsafeUrl, place: "Tokyo" }, "map"),
+      "https://www.google.com/maps/search/?api=1&query=Tokyo",
+    );
+  }
+});
