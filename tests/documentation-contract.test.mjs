@@ -95,3 +95,22 @@ test("binds product and technical design to the implemented static boundary", as
   assert.match(baseline, /Context Map status/);
   assert.doesNotMatch(baseline, /k6 delivery evidence/i);
 });
+
+test("documents a bounded public support route", async () => {
+  const [readme, baseline] = await Promise.all([
+    readFile("README.md", "utf8"),
+    readFile("docs/product-technical-gap-baseline.md", "utf8"),
+  ]);
+
+  assert.match(readme, /## 지원/);
+  assert.match(
+    readme,
+    /https:\/\/github\.com\/ContextualWisdomLab\/j-planner\/issues/,
+  );
+  assert.match(readme, /민감한 여행 정보나 보안 취약점은 공개 Issue에 올리지 마세요/);
+  assert.match(readme, /지원 SLA와 비공개 보안 신고 경로는 아직 제공하지 않습니다/);
+  assert.match(
+    baseline,
+    /\| JPL-OPS-001 \|[^\n]+\| Partially Addressed \|/,
+  );
+});

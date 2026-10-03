@@ -1,7 +1,7 @@
 # J플래너 product and technical gap baseline
 
 Status: **Proposed**
-Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2) foundation head `f9f9fa2afc3d15f4cb24112fccefe0d150ecdb87`, repository metadata, and this stacked writer branch, observed 2026-10-02.
+Evidence snapshot: protected `gh-pages@ec030872a0762af8af54d359c88e4c90239e05e4`, [PR #2](https://github.com/ContextualWisdomLab/j-planner/pull/2) foundation head `05218df22155eaa58f7556a89365842eec5bccab`, repository metadata, and this stacked writer branch, observed 2026-10-03.
 
 This baseline distinguishes protected-source evidence from proposed PR content and live publication. An open PR is not a release or deployment.
 
@@ -31,7 +31,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 
 | Artifact | Current evidence | Status |
 | --- | --- | --- |
-| README | Customer purpose, use, data-loss warning, boundaries, architecture, support expectations, and license are documented in PR #2. | Proposed |
+| README | Customer purpose, use, data-loss warning, external boundaries, architecture, bounded public support route, support limits, and license are documented in PR #2. | Proposed |
 | PRD | `docs/PRD.md` binds users, outcomes, invariants, acceptance scenes, and non-goals to implemented behavior. It exists only on this writer branch. | Proposed |
 | TRD | `docs/TRD.md` records the static runtime, browser state, external ACLs, failure handling, and verification boundary. It exists only on this writer branch. | Proposed |
 | Architecture / UML | `docs/ARCHITECTURE.md` records the Bounded Context, Trip aggregate, Context Map status, System context, logical components, state transitions, and failure boundaries. It exists only on this writer branch. | Proposed |
@@ -56,7 +56,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | JPL-SEC-002 | Imported identifiers were interpolated into HTML attributes without a constrained character set; other imported date/text fields still lack a complete hostile-input schema and browser regression suite. | Regenerate unsafe trip/flight/activity identifiers in this stack; then add schema validation, safe attribute construction, and hostile-import browser tests before release. | Proposed repair |
 | JPL-RTE-001 | A late OSRM response could repopulate routes after the selected view became empty because the route token was not invalidated on the early return. | Increment the current-view token before every empty-view return and bind both the invalidation and late-result guard in `tests/runtime-boundary-contract.test.mjs`. | Proposed repair |
 | JPL-DES-001 | Protected source lacks dedicated PRD, TRD, and maintained architecture/UML evidence; this writer branch proposes all three without inventing a database or service boundary. | Keep their contracts aligned with `index.html`; integrate only through the PR #2 → PR #3 stack after exact-head Checks and required independent review. | Proposed repair |
-| JPL-OPS-001 | No product-owned support or incident route is documented. | Define a public support and vulnerability-reporting route before a supported release claim. | Open |
+| JPL-OPS-001 | GitHub Issues is available for non-sensitive product and documentation reports, but no support SLA or private vulnerability/incident route is published. | Keep sensitive travel and vulnerability details out of public Issues; establish and verify a private reporting route and support policy before a supported release claim. | Partially Addressed |
 | JPL-OPS-002 | Storage read/removal, attachment-read, tile, and route-fallback failures are logged, ignored, or degraded without consistent traveller-visible recovery. | Add explicit error states and browser tests without claiming server durability; preserve local editing and export recovery. | Open |
 | JPL-DAT-001 | Structurally invalid but parseable imported JSON normalises to starter data and can replace current state after confirmation. | Validate a versioned backup schema before confirmation, fail closed without mutating state, and test malformed and hostile fixtures. | Open |
 | JPL-PERF-001 | No workload, measurement boundary, or baseline exists for the governing all-pages p95 ≤20 ms objective. | First define representative browser and published-delivery workloads, environment, sample design, and failure denominator; then select measurement tools and report all results without claiming the objective has been met. | Open |
