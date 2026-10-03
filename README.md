@@ -63,6 +63,12 @@ Browser
 
 이 저장소는 정적 Pages 앱이므로 README 변경만으로 제품 기능이 바뀌지는 않습니다. `index.html`을 변경할 때는 실제 브라우저에서 여행 생성, 일정 편집, 지도 표시, 백업/복원, ICS 내보내기와 저장소 유지 동작을 함께 검증해야 합니다. 사용자에게 보이는 기능 설명은 검증된 동작보다 앞서가면 안 됩니다.
 
+## 지원
+
+일반적인 제품 결함과 문서 문제는 [GitHub Issues](https://github.com/ContextualWisdomLab/j-planner/issues)에 재현 절차와 브라우저 정보를 포함해 남겨 주세요. 민감한 여행 정보나 보안 취약점은 공개 Issue에 올리지 마세요.
+
+지원 SLA와 비공개 보안 신고 경로는 아직 제공하지 않습니다. 해당 경로가 마련되기 전에는 지원 또는 incident-response 보장을 주장하지 않습니다.
+
 ## License
 
 J플래너의 원저작물은 [Apache License 2.0](LICENSE)으로 제공됩니다. 상업적 이용이 허용되는 제3자 코드만 반입하는 것을 원칙으로 하며, 인라인으로 포함된 Leaflet 1.9.4는 자체 [BSD 2-Clause 조건](THIRD_PARTY_NOTICES.md)을 유지합니다. Apache-2.0은 Leaflet의 제3자 권리나 고지 의무를 덮어쓰지 않습니다.
