@@ -29,7 +29,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 
 | Artifact | Current evidence | Status |
 | --- | --- | --- |
-| README | Customer purpose, use, data-loss warning, boundaries, architecture, support expectations, and license are documented in PR #2. | Proposed |
+| README | Customer purpose, use, data-loss warning, external boundaries, architecture, bounded public support route, support limits, and license are documented in PR #2. | Proposed |
 | PRD | No dedicated PRD is present on the protected base or this writer branch. Product behavior is currently evidenced by `index.html` and README. | Gap |
 | TRD | No dedicated TRD is present. The single-file runtime and external network calls are visible in `index.html`. | Gap |
 | UML | No maintained UML artifact is present. The Context Map above is the bounded architecture view for this documentation change. | Gap |
@@ -50,7 +50,7 @@ J플래너 owns travel-plan interaction and browser-local persistence. Leaflet r
 | JPL-REL-001 | No immutable GitHub Release binds source, license, and provenance. | Produce a versioned release only after release acceptance confirms source revision, SBOM/provenance, and third-party notices. | Open |
 | JPL-SEC-001 | Historical dependency review could not query the dependency graph (HTTP 403). | Repair the central workflow owner; retain fail-closed behavior for dependency-changing PRs and verify a fresh exact-head run when applicable. | Open upstream |
 | JPL-DES-001 | PRD, TRD, and ADR evidence are absent. | Add bounded decisions only when product or operational behavior changes; do not manufacture documents for the current static implementation. | Open |
-| JPL-OPS-001 | No product-owned support or incident route is documented. | Define a public support and vulnerability-reporting route before a supported release claim. | Open |
+| JPL-OPS-001 | GitHub Issues is available for non-sensitive product and documentation reports, but no support SLA or private vulnerability/incident route is published. | Keep sensitive travel and vulnerability details out of public Issues; establish and verify a private reporting route and support policy before a supported release claim. | Partially Addressed |
 
 ## Merge and release gate
 
